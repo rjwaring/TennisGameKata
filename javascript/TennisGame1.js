@@ -1,16 +1,23 @@
+var Player = require("./Player.js");
+
 var TennisGame1 = function(player1Name, player2Name) {
-    this.player1Name = player1Name;
-    this.player2Name = player2Name;
+    this.player1 = new Player(player1Name);
+    this.player2 = new Player(player2Name);
+
     this.pointNames = [
         'Love',
         'Fifteen',
         'Thirty',
         'Forty'
     ];
+};
 
-    this.scores = {};
-    this.scores[player1Name] = 0;
-    this.scores[player2Name] = 0;
+TennisGame1.prototype.getPlayerByName = function(name) {
+    if (this.player1.isNamedPlayer(name)) {
+        return this.player1;
+    }
+
+    return this.player2;
 };
 
 TennisGame1.prototype.getPointName = function(score) {
@@ -18,15 +25,17 @@ TennisGame1.prototype.getPointName = function(score) {
 };
 
 TennisGame1.prototype.getPlayer1Score = function() {
-    return this.scores[this.player1Name];
+    return this.player1.getScore();
 };
 
 TennisGame1.prototype.getPlayer2Score = function() {
-    return this.scores[this.player2Name];
+    return this.player2.getScore();
 };
 
 TennisGame1.prototype.wonPoint = function(playerName) {
-    this.scores[playerName] = this.scores[playerName] + 1;
+    var player = this.getPlayerByName(playerName);
+
+    player.wonPoint();
 };
 
 TennisGame1.prototype.isCurrentlyDrawn = function () {
@@ -78,7 +87,7 @@ TennisGame1.prototype.calculateAdvantageOrWin = function() {
 };
 
 TennisGame1.prototype.getPlayerVsPlayerScore = function() {
-    var score = "";
+    var score;
 
     score = this.getPointName(this.getPlayer1Score());
     score += '-';
@@ -87,7 +96,6 @@ TennisGame1.prototype.getPlayerVsPlayerScore = function() {
 };
 
 TennisGame1.prototype.getScore = function() {
-
     if (this.isCurrentlyDrawn()) {
         return this.drawOutput(this.getPlayer1Score());
     } else if (this.isPotentialGamePoint()) {
