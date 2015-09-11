@@ -1,65 +1,100 @@
 var TennisGame1 = function(player1Name, player2Name) {
-    this.m_score1 = 0;
-    this.m_score2 = 0;
     this.player1Name = player1Name;
     this.player2Name = player2Name;
+    this.pointNames = [
+        'Love',
+        'Fifteen',
+        'Thirty',
+        'Forty'
+    ];
+
+    this.scores = {};
+    this.scores[player1Name] = 0;
+    this.scores[player2Name] = 0;
+};
+
+TennisGame1.prototype.getPointName = function(score) {
+    return this.pointNames[score];
+};
+
+TennisGame1.prototype.getPlayer1Score = function() {
+    return this.scores[this.player1Name];
+};
+
+TennisGame1.prototype.getPlayer2Score = function() {
+    return this.scores[this.player2Name];
 };
 
 TennisGame1.prototype.wonPoint = function(playerName) {
-    if (playerName === "player1")
-        this.m_score1 += 1;
-    else
-        this.m_score2 += 1;
+    this.scores[playerName] = this.scores[playerName] + 1;
+};
+
+TennisGame1.prototype.isCurrentlyDrawn = function () {
+    return this.getPlayer1Score() === this.getPlayer2Score();
+};
+
+TennisGame1.prototype.drawOutput = function(score) {
+    if (score < 3) {
+        return this.getPointName(score) + '-All';
+    }
+
+    return 'Deuce';
+};
+
+TennisGame1.prototype.isPotentialGamePoint = function () {
+    return this.getPlayer1Score() >= 4 || this.getPlayer2Score() >= 4;
+};
+
+TennisGame1.prototype.isAdvantage = function() {
+    return Math.abs(this.getPlayer1Score() - this.getPlayer2Score()) === 1;
+};
+
+TennisGame1.prototype.isPlayer1Winning = function() {
+    return this.getPlayer1Score() > this.getPlayer2Score();
+};
+
+TennisGame1.prototype.advantageOutput = function() {
+    if (this.isPlayer1Winning()) {
+        return "Advantage player1";
+    }
+
+    return "Advantage player2";
+};
+
+TennisGame1.prototype.winOutput = function() {
+    if (this.isPlayer1Winning()) {
+        return "Win for player1";
+    }
+
+    return "Win for player2";
+};
+
+TennisGame1.prototype.calculateAdvantageOrWin = function() {
+    if (this.isAdvantage()) {
+        return this.advantageOutput();
+    }
+
+    return this.winOutput();
+};
+
+TennisGame1.prototype.getPlayerVsPlayerScore = function() {
+    var score = "";
+
+    score = this.getPointName(this.getPlayer1Score());
+    score += '-';
+
+    return score + this.getPointName(this.getPlayer2Score());
 };
 
 TennisGame1.prototype.getScore = function() {
-    var score = "";
-    var tempScore = 0;
-    if (this.m_score1 === this.m_score2) {
-        switch (this.m_score1) {
-            case 0:
-                score = "Love-All";
-                break;
-            case 1:
-                score = "Fifteen-All";
-                break;
-            case 2:
-                score = "Thirty-All";
-                break;
-            default:
-                score = "Deuce";
-                break;
-        }
-    } else if (this.m_score1 >= 4 || this.m_score2 >= 4) {
-        var minusResult = this.m_score1 - this.m_score2;
-        if (minusResult === 1) score = "Advantage player1";
-        else if (minusResult === -1) score = "Advantage player2";
-        else if (minusResult >= 2) score = "Win for player1";
-        else score = "Win for player2";
+
+    if (this.isCurrentlyDrawn()) {
+        return this.drawOutput(this.getPlayer1Score());
+    } else if (this.isPotentialGamePoint()) {
+        return this.calculateAdvantageOrWin();
     } else {
-        for (var i = 1; i < 3; i++) {
-            if (i === 1) tempScore = this.m_score1;
-            else {
-                score += "-";
-                tempScore = this.m_score2;
-            }
-            switch (tempScore) {
-                case 0:
-                    score += "Love";
-                    break;
-                case 1:
-                    score += "Fifteen";
-                    break;
-                case 2:
-                    score += "Thirty";
-                    break;
-                case 3:
-                    score += "Forty";
-                    break;
-            }
-        }
+        return this.getPlayerVsPlayerScore();
     }
-    return score;
 };
 
 if (typeof window === "undefined") {
